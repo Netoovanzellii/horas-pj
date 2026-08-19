@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+
+  /* Superfícies */
+  --surface-1: #ffffff;
+  --page-plane: #f7f8fa;
+  --border-hairline: rgba(11, 11, 11, 0.1);
+
+  /* Tinta */
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted: #898781;
+
+  /* Categórica / sequencial (paleta validada) */
+  --series-1: #2a78d6; /* azul — usado como cor primária da marca */
+  --series-1-strong: #184f95;
+  --series-1-wash: #cde2fb;
+
+  /* Status (fixos) */
+  --status-good: #0ca30c;
+  --status-warning: #fab219;
+  --status-serious: #ec835a;
+  --status-critical: #d03b3b;
+
+  --gridline: #e1e0d9;
+  --baseline: #c3c2b7;
+}
+
+@theme inline {
+  --color-background: var(--page-plane);
+  --color-foreground: var(--text-primary);
+}
+
+body {
+  background: var(--page-plane);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@media print {
+  aside,
+  .print\:hidden {
+    display: none !important;
+  }
+  body {
+    background: #ffffff;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+}
