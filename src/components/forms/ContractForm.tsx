@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { updateContractConfig } from "@/app/actions/contract";
 import type { ActionResult } from "@/app/actions/requests";
+import { MoneyField } from "./MoneyField";
 
 const inputCls =
   "w-full rounded-md border border-[var(--border-hairline)] bg-white px-3 py-2 text-[14px] outline-none focus:border-[var(--series-1)] focus:ring-2 focus:ring-[var(--series-1-wash)]";
@@ -78,30 +79,12 @@ export function ContractForm({
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelCls}>Valor mensal (R$, opcional)</label>
-          <input
-            type="number"
-            name="monthlyValueCents"
-            min={0}
-            step={1}
-            defaultValue={monthlyValueCents ?? undefined}
-            placeholder="em centavos"
-            className={inputCls}
-          />
-        </div>
-        <div>
-          <label className={labelCls}>Valor da hora excedente (R$, opcional)</label>
-          <input
-            type="number"
-            name="overtimeHourValueCents"
-            min={0}
-            step={1}
-            defaultValue={overtimeHourValueCents ?? undefined}
-            placeholder="em centavos"
-            className={inputCls}
-          />
-        </div>
+        <MoneyField name="monthlyValue" label="Valor mensal (opcional)" defaultCents={monthlyValueCents} />
+        <MoneyField
+          name="overtimeHourValue"
+          label="Valor da hora excedente (opcional)"
+          defaultCents={overtimeHourValueCents}
+        />
       </div>
 
       <div>

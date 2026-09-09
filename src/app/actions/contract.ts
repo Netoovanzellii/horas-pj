@@ -8,19 +8,38 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { contractFormSchema, clientFormSchema, newClientFormSchema } from "@/lib/validation";
 import { ACTIVE_CONTRACT_COOKIE, ACTIVE_CONTRACT_COOKIE_MAX_AGE } from "@/lib/activeContract";
+import { parseBRLToCents } from "@/lib/money";
 import type { ActionResult } from "./requests";
+
+/**
+ * Lê os campos de valor (reais, texto pt-BR) do formulário e devolve em
+ * centavos. Retorna `{ error }` se algum valor não-vazio for inválido.
+ */
+function readMoneyFields(formData: FormData):
+  | { monthlyValueCents: number | null; overtimeHourValueCents: number | null }
+  | { error: string } {
+  const monthlyValueCents = parseBRLToCents(formData.get("monthlyValue")?.toString());
+  const overtimeHourValueCents = parseBRLToCents(formData.get("overtimeHourValue")?.toString());
+  if (Number.isNaN(monthlyValueCents) || Number.isNaN(overtimeHourValueCents)) {
+    return { error: "Valor inválido. Informe apenas números, ex.: 1.800,00." };
+  }
+  return { monthlyValueCents, overtimeHourValueCents };
+}
 
 export async function updateContractConfig(
   contractId: number,
   _prev: ActionResult | null,
   formData: FormData
 ): Promise<ActionResult> {
+  const money = readMoneyFields(formData);
+  if ("error" in money) return { ok: false, error: money.error };
+
   const parsed = contractFormSchema.safeParse({
     hoursPart: formData.get("hoursPart"),
     minutesPart: formData.get("minutesPart"),
     closingDay: formData.get("closingDay"),
-    monthlyValueCents: formData.get("monthlyValueCents") || undefined,
-    overtimeHourValueCents: formData.get("overtimeHourValueCents") || undefined,
+    monthlyValueCents: money.monthlyValueCents ?? undefined,
+    overtimeHourValueCents: money.overtimeHourValueCents ?? undefined,
   });
 
   if (!parsed.success) {
@@ -98,6 +117,9 @@ export async function toggleContractStatusAction(contractId: number, currentStat
 
 /** Cadastra um novo cliente + contrato e já passa a usá-lo. */
 export async function createClientAction(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+  const money = readMoneyFields(formData);
+  if ("error" in money) return { ok: false, error: money.error };
+
   const parsed = newClientFormSchema.safeParse({
     name: formData.get("name")?.toString() ?? "",
     cnpj: formData.get("cnpj")?.toString() || undefined,
@@ -108,8 +130,8 @@ export async function createClientAction(_prev: ActionResult | null, formData: F
     minutesPart: formData.get("minutesPart"),
     closingDay: formData.get("closingDay"),
     startDate: formData.get("startDate")?.toString() ?? "",
-    monthlyValueCents: formData.get("monthlyValueCents") || undefined,
-    overtimeHourValueCents: formData.get("overtimeHourValueCents") || undefined,
+    monthlyValueCents: money.monthlyValueCents ?? undefined,
+    overtimeHourValueCents: money.overtimeHourValueCents ?? undefined,
   });
 
   if (!parsed.success) {
