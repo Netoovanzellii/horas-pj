@@ -103,7 +103,7 @@ export default async function PeriodoDetailPage({ params }: { params: Promise<{ 
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <PrintButton />
+          <PrintButton start={period.start} />
           <ClosePeriodButton contractId={contract.id} period={period} closed={summary.closed} />
         </div>
       </div>
