@@ -20,8 +20,8 @@ export default async function DashboardPage() {
         <p className="text-[var(--text-secondary)] text-[14px] mb-4">
           Cadastre o cliente e o contrato para começar a usar o sistema.
         </p>
-        <Link href="/configuracoes" className="text-[var(--series-1)] font-medium text-[14px]">
-          Ir para Configurações →
+        <Link href="/clientes" className="text-[var(--series-1)] font-medium text-[14px]">
+          Cadastrar cliente →
         </Link>
       </div>
     );

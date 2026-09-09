@@ -66,3 +66,12 @@ export const clientFormSchema = z.object({
   phone: z.string().optional(),
   notes: z.string().optional(),
 });
+
+export const newClientFormSchema = clientFormSchema.extend({
+  hoursPart: z.coerce.number().int().nonnegative(),
+  minutesPart: z.coerce.number().int().min(0).max(59),
+  closingDay: z.coerce.number().int().min(1).max(31),
+  startDate: z.string().min(1, "Data de início é obrigatória"),
+  monthlyValueCents: z.coerce.number().int().nonnegative().optional(),
+  overtimeHourValueCents: z.coerce.number().int().nonnegative().optional(),
+});

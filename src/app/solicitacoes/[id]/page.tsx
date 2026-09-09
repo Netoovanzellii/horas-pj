@@ -5,7 +5,8 @@ import { formatMinutesShort } from "@/lib/time";
 import { StatusBadge, PriorityBadge } from "@/components/ui/Badge";
 import { Panel } from "@/components/ui/StatCard";
 import { TimeEntryForm } from "@/components/forms/TimeEntryForm";
-import { DeleteEntryButton, DeleteRequestButton } from "@/components/forms/DeleteButtons";
+import { EntryRow } from "@/components/forms/EntryRow";
+import { DeleteRequestButton } from "@/components/forms/DeleteButtons";
 
 export default async function SolicitacaoDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -89,18 +90,7 @@ export default async function SolicitacaoDetailPage({ params }: { params: Promis
               </thead>
               <tbody>
                 {entries.map((e) => (
-                  <tr key={e.id} className="border-b border-[var(--border-hairline)] last:border-0">
-                    <td className="py-2.5 px-4 sm:px-2 whitespace-nowrap">{formatDatePt(e.date)}</td>
-                    <td className="py-2.5 px-2 whitespace-nowrap">{e.activityType}</td>
-                    <td className="py-2.5 px-2 whitespace-nowrap text-[var(--text-secondary)]">
-                      {e.startTime && e.endTime ? `${e.startTime} → ${e.endTime}` : "—"}
-                    </td>
-                    <td className="py-2.5 px-2 text-[var(--text-secondary)] max-w-[240px] truncate">{e.description || "—"}</td>
-                    <td className="py-2.5 px-2 text-right font-medium whitespace-nowrap">{formatMinutesShort(e.durationMinutes)}</td>
-                    <td className="py-2.5 px-2 text-right">
-                      <DeleteEntryButton entryId={e.id} requestId={requestId} />
-                    </td>
-                  </tr>
+                  <EntryRow key={e.id} entry={e} requestId={requestId} />
                 ))}
               </tbody>
               <tfoot>

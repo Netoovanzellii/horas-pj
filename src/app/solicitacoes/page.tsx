@@ -13,7 +13,14 @@ export default async function SolicitacoesPage({
   const contract = await getActiveContract();
 
   if (!contract) {
-    return <p className="text-[14px] text-[var(--text-secondary)]">Configure um contrato antes de cadastrar solicitações.</p>;
+    return (
+      <p className="text-[14px] text-[var(--text-secondary)]">
+        Cadastre um cliente antes de criar solicitações.{" "}
+        <Link href="/clientes" className="text-[var(--series-1)] font-medium">
+          Cadastrar cliente →
+        </Link>
+      </p>
+    );
   }
 
   const allRequests = await getAllRequestsForContract(contract.id);

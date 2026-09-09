@@ -1,21 +1,55 @@
 import { db } from "@/db/client";
 import { clients, contracts, requests, timeEntries, periodClosures } from "@/db/schema";
 import { eq, inArray } from "drizzle-orm";
+import { cookies } from "next/headers";
 import { calcBalance, type HoursBalance } from "./hours";
 import { isDateInPeriod, type Period } from "./period";
+import { ACTIVE_CONTRACT_COOKIE } from "./activeContract";
 
 export type Contract = typeof contracts.$inferSelect;
 export type Client = typeof clients.$inferSelect;
 export type RequestRow = typeof requests.$inferSelect;
 export type TimeEntryRow = typeof timeEntries.$inferSelect;
 
-/** MVP: assume um único cliente/contrato ativo. Estrutura já suporta múltiplos. */
+export async function getContractById(id: number): Promise<(Contract & { client: Client }) | null> {
+  const rows = await db
+    .select()
+    .from(contracts)
+    .innerJoin(clients, eq(contracts.clientId, clients.id))
+    .where(eq(contracts.id, id))
+    .limit(1);
+  const row = rows[0];
+  return row ? { ...row.contracts, client: row.clients } : null;
+}
+
+export async function getAllContractsWithClients(): Promise<(Contract & { client: Client })[]> {
+  const rows = await db
+    .select()
+    .from(contracts)
+    .innerJoin(clients, eq(contracts.clientId, clients.id))
+    .orderBy(clients.name);
+  return rows.map((r) => ({ ...r.contracts, client: r.clients }));
+}
+
+/**
+ * Contrato "em uso" no momento: o que o usuário selecionou no seletor de
+ * clientes (guardado em cookie). Sem seleção válida, cai no primeiro
+ * contrato com status "ativo".
+ */
 export async function getActiveContract(): Promise<(Contract & { client: Client }) | null> {
+  const cookieStore = await cookies();
+  const selectedId = Number(cookieStore.get(ACTIVE_CONTRACT_COOKIE)?.value);
+  if (selectedId) {
+    const selected = await getContractById(selectedId);
+    if (selected) return selected;
+  }
+
   const rows = await db
     .select()
     .from(contracts)
     .innerJoin(clients, eq(contracts.clientId, clients.id))
     .where(eq(contracts.status, "ativo"))
+    .orderBy(contracts.id)
     .limit(1);
   const row = rows[0];
   if (!row) return null;

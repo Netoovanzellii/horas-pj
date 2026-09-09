@@ -13,7 +13,14 @@ export default async function PeriodosPage({
   const contract = await getActiveContract();
 
   if (!contract) {
-    return <p className="text-[14px] text-[var(--text-secondary)]">Configure um contrato antes de consultar períodos.</p>;
+    return (
+      <p className="text-[14px] text-[var(--text-secondary)]">
+        Cadastre um cliente antes de consultar períodos.{" "}
+        <Link href="/clientes" className="text-[var(--series-1)] font-medium">
+          Cadastrar cliente →
+        </Link>
+      </p>
+    );
   }
 
   const periods = listPeriodsSince(contract.startDate, contract.closingDay).reverse();

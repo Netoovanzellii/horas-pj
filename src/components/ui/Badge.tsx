@@ -18,7 +18,7 @@ export function StatusBadge({ status }: { status: string }) {
   const s = STATUS_STYLES[status] ?? { bg: "#eee", fg: "#555" };
   return (
     <span
-      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[12px] font-medium whitespace-nowrap"
+      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[12px] font-medium whitespace-nowrap print:rounded print:px-1.5 print:py-0"
       style={{ background: s.bg, color: s.fg }}
     >
       {status}
@@ -30,7 +30,7 @@ export function PriorityBadge({ priority }: { priority: string }) {
   const s = PRIORITY_STYLES[priority] ?? { bg: "#eee", fg: "#555" };
   return (
     <span
-      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[12px] font-medium whitespace-nowrap"
+      className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[12px] font-medium whitespace-nowrap print:rounded print:px-1.5 print:py-0"
       style={{ background: s.bg, color: s.fg }}
     >
       {priority}

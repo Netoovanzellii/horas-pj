@@ -1,17 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { setActiveContractAction } from "@/app/actions/contract";
 
 const links = [
   { href: "/", label: "Dashboard" },
   { href: "/solicitacoes", label: "Solicitações" },
   { href: "/periodos", label: "Períodos" },
+  { href: "/clientes", label: "Clientes" },
   { href: "/configuracoes", label: "Configurações" },
 ];
 
-export default function Sidebar() {
+export type SidebarContractOption = { id: number; clientName: string; status: "ativo" | "encerrado" };
+
+export default function Sidebar({
+  contractOptions,
+  selectedContractId,
+}: {
+  contractOptions: SidebarContractOption[];
+  selectedContractId: number | null;
+}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -20,7 +30,7 @@ export default function Sidebar() {
   return (
     <>
       {/* Top bar mobile */}
-      <div className="sm:hidden flex items-center justify-between px-4 py-3 border-b border-[var(--border-hairline)] bg-[var(--surface-1)] sticky top-0 z-30">
+      <div className="sm:hidden flex items-center justify-between px-4 py-3 border-b border-[var(--border-hairline)] bg-[var(--surface-1)] sticky top-0 z-30 print:hidden">
         <span className="font-semibold text-[15px]">Controle de Horas</span>
         <button
           onClick={() => setOpen((v) => !v)}
@@ -34,7 +44,10 @@ export default function Sidebar() {
       </div>
 
       {open && (
-        <div className="sm:hidden bg-[var(--surface-1)] border-b border-[var(--border-hairline)] px-2 py-2">
+        <div className="sm:hidden bg-[var(--surface-1)] border-b border-[var(--border-hairline)] px-2 py-2 print:hidden">
+          <div className="px-1 pb-2">
+            <ContractSwitcher contractOptions={contractOptions} selectedContractId={selectedContractId} />
+          </div>
           {links.map((l) => (
             <Link
               key={l.href}
@@ -53,10 +66,13 @@ export default function Sidebar() {
       )}
 
       {/* Sidebar desktop */}
-      <aside className="hidden sm:flex sm:flex-col w-60 shrink-0 border-r border-[var(--border-hairline)] bg-[var(--surface-1)] min-h-screen sticky top-0">
+      <aside className="hidden sm:flex sm:flex-col w-60 shrink-0 border-r border-[var(--border-hairline)] bg-[var(--surface-1)] min-h-screen sticky top-0 print:hidden">
         <div className="px-5 py-6">
           <div className="font-semibold text-[15px] leading-tight">Controle de Horas</div>
           <div className="text-[12px] text-[var(--text-muted)] mt-0.5">Prestação de serviços PJ</div>
+        </div>
+        <div className="px-3 mb-3">
+          <ContractSwitcher contractOptions={contractOptions} selectedContractId={selectedContractId} />
         </div>
         <nav className="px-3 flex flex-col gap-0.5">
           {links.map((l) => (
@@ -75,5 +91,40 @@ export default function Sidebar() {
         </nav>
       </aside>
     </>
+  );
+}
+
+function ContractSwitcher({
+  contractOptions,
+  selectedContractId,
+}: {
+  contractOptions: SidebarContractOption[];
+  selectedContractId: number | null;
+}) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
+  if (contractOptions.length === 0) return null;
+
+  return (
+    <select
+      value={selectedContractId ?? ""}
+      disabled={pending}
+      onChange={(e) => {
+        const id = Number(e.target.value);
+        startTransition(async () => {
+          await setActiveContractAction(id);
+          router.refresh();
+        });
+      }}
+      className="w-full rounded-md border border-[var(--border-hairline)] bg-white px-2.5 py-1.5 text-[13px] font-medium outline-none focus:border-[var(--series-1)] disabled:opacity-60"
+    >
+      {contractOptions.map((c) => (
+        <option key={c.id} value={c.id}>
+          {c.clientName}
+          {c.status === "encerrado" ? " (encerrado)" : ""}
+        </option>
+      ))}
+    </select>
   );
 }

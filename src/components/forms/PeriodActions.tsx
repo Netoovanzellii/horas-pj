@@ -42,8 +42,9 @@ export function PrintButton() {
       type="button"
       onClick={() => window.print()}
       className="rounded-md border border-[var(--border-hairline)] text-[13.5px] font-medium px-3.5 py-2 print:hidden"
+      title="Na janela de impressão, escolha 'Salvar como PDF' como destino"
     >
-      Gerar relatório (imprimir / PDF)
+      Baixar PDF / Imprimir
     </button>
   );
 }

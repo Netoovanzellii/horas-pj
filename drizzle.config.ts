@@ -25,3 +25,4 @@ export default tursoUrl
         url: "./data/app.db",
       },
     });
+    

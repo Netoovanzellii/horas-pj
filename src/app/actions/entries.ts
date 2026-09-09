@@ -13,12 +13,24 @@ function emptyToUndefined(v: FormDataEntryValue | null): string | undefined {
   return s === "" ? undefined : s;
 }
 
-export async function createTimeEntry(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
-  const requestId = Number(formData.get("requestId"));
+type ResolvedEntry = {
+  date: string;
+  startTime: string | null;
+  endTime: string | null;
+  durationMinutes: number;
+  activityType: (typeof timeEntries.$inferInsert)["activityType"];
+  description: string | null;
+};
+
+/**
+ * Valida o FormData de um apontamento (criar OU editar) e resolve a duração,
+ * seja a partir de hora inicial/final, seja do valor informado diretamente.
+ */
+function resolveEntryFromForm(formData: FormData): { ok: true; data: ResolvedEntry } | { ok: false; error: string } {
   const durationRaw = emptyToUndefined(formData.get("durationMinutes"));
 
   const parsed = timeEntryFormSchema.safeParse({
-    requestId,
+    requestId: Number(formData.get("requestId")) || 1, // não é persistido daqui; presença só para o schema
     date: formData.get("date")?.toString() ?? "",
     activityType: formData.get("activityType")?.toString() ?? "Outros",
     description: emptyToUndefined(formData.get("description")),
@@ -50,27 +62,57 @@ export async function createTimeEntry(_prev: ActionResult | null, formData: Form
     return { ok: false, error: "Informe horário inicial/final ou a duração." };
   }
 
-  await db.insert(timeEntries).values({
-    requestId: data.requestId,
-    date: data.date,
-    startTime,
-    endTime,
-    durationMinutes,
-    activityType: data.activityType,
-    description: data.description ?? null,
-  });
+  return {
+    ok: true,
+    data: {
+      date: data.date,
+      startTime,
+      endTime,
+      durationMinutes,
+      activityType: data.activityType,
+      description: data.description ?? null,
+    },
+  };
+}
 
-  revalidatePath(`/solicitacoes/${data.requestId}`);
+function revalidateEntryViews(requestId: number) {
+  revalidatePath(`/solicitacoes/${requestId}`);
   revalidatePath("/solicitacoes");
   revalidatePath("/");
   revalidatePath("/periodos");
+}
+
+export async function createTimeEntry(_prev: ActionResult | null, formData: FormData): Promise<ActionResult> {
+  const requestId = Number(formData.get("requestId"));
+  if (!requestId) return { ok: false, error: "Solicitação inválida." };
+
+  const resolved = resolveEntryFromForm(formData);
+  if (!resolved.ok) return resolved;
+
+  await db.insert(timeEntries).values({ requestId, ...resolved.data });
+
+  revalidateEntryViews(requestId);
+  return { ok: true };
+}
+
+export async function updateTimeEntry(
+  id: number,
+  requestId: number,
+  _prev: ActionResult | null,
+  formData: FormData
+): Promise<ActionResult> {
+  if (!id || !requestId) return { ok: false, error: "Apontamento inválido." };
+
+  const resolved = resolveEntryFromForm(formData);
+  if (!resolved.ok) return resolved;
+
+  await db.update(timeEntries).set(resolved.data).where(eq(timeEntries.id, id));
+
+  revalidateEntryViews(requestId);
   return { ok: true };
 }
 
 export async function deleteTimeEntry(id: number, requestId: number): Promise<void> {
   await db.delete(timeEntries).where(eq(timeEntries.id, id));
-  revalidatePath(`/solicitacoes/${requestId}`);
-  revalidatePath("/solicitacoes");
-  revalidatePath("/");
-  revalidatePath("/periodos");
+  revalidateEntryViews(requestId);
 }
