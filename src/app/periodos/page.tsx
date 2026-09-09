@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getActiveContract, getPeriodSummary } from "@/lib/queries";
 import { listPeriodsSince, formatPeriodLabel } from "@/lib/period";
 import { formatMinutesShort } from "@/lib/time";
-import { Panel, StatCard } from "@/components/ui/StatCard";
+import { StatCard } from "@/components/ui/StatCard";
 
 export default async function PeriodosPage({
   searchParams,

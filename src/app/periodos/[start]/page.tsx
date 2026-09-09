@@ -19,6 +19,27 @@ function formatBRL(cents: number | null | undefined): string | null {
   return (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+const MESES = [
+  "janeiro",
+  "fevereiro",
+  "março",
+  "abril",
+  "maio",
+  "junho",
+  "julho",
+  "agosto",
+  "setembro",
+  "outubro",
+  "novembro",
+  "dezembro",
+];
+
+/** Rótulo do período pelo mês em que ele começa: "Período de agosto de 2026". */
+function formatPeriodMonthLabel(startISO: string): string {
+  const [y, m] = startISO.split("-").map(Number);
+  return `Período de ${MESES[m - 1]} de ${y}`;
+}
+
 export default async function PeriodoDetailPage({ params }: { params: Promise<{ start: string }> }) {
   const { start } = await params;
   const contract = await getActiveContract();
@@ -94,7 +115,7 @@ export default async function PeriodoDetailPage({ params }: { params: Promise<{ 
             <div className="text-[9pt] tracking-[0.14em] uppercase text-[var(--series-1-strong)] font-semibold">
               Relatório de fechamento de período
             </div>
-            <div className="text-[17pt] font-semibold leading-tight mt-1">{formatPeriodLabel(period)}</div>
+            <div className="text-[17pt] font-semibold leading-tight mt-1">{formatPeriodMonthLabel(period.start)}</div>
           </div>
           <div className="text-right text-[9pt] leading-snug">
             <div className="font-semibold text-[10pt]">{contract.client.name}</div>
@@ -301,24 +322,6 @@ export default async function PeriodoDetailPage({ params }: { params: Promise<{ 
           </div>
         </Panel>
       )}
-
-      {/* ---------- Assinaturas (impressão) ---------- */}
-      <section className="hidden print:block report-signatures">
-        <div className="text-[9pt] mb-10">
-          {contract.client.name} declara ter conferido os apontamentos acima e estar de acordo com o total de{" "}
-          <strong>{formatMinutesShort(summary.balance.usedMinutes)}</strong> apurado neste período
-          {overageCost ? `, com estimativa de ${overageCost} referente às horas excedentes` : ""}.
-        </div>
-        <div className="flex justify-between gap-10">
-          <div className="flex-1">
-            <div className="border-t border-black/60 pt-1 text-[8.5pt]">Prestador de serviços</div>
-          </div>
-          <div className="flex-1">
-            <div className="border-t border-black/60 pt-1 text-[8.5pt]">{contract.client.name} (contratante)</div>
-          </div>
-        </div>
-        <div className="text-[8.5pt] text-black/55 mt-6">Local e data: ______________________________, ____ / ____ / ______</div>
-      </section>
 
       {/* ---------- Rodapé (impressão) ---------- */}
       <footer className="hidden print:block report-footer">

@@ -38,13 +38,18 @@ export function ClosePeriodButton({ contractId, period, closed }: { contractId: 
 
 export function PrintButton() {
   return (
-    <button
-      type="button"
-      onClick={() => window.print()}
-      className="rounded-md border border-[var(--border-hairline)] text-[13.5px] font-medium px-3.5 py-2 print:hidden"
-      title="Na janela de impressão, escolha 'Salvar como PDF' como destino"
-    >
-      Baixar PDF / Imprimir
-    </button>
+    <div className="flex flex-col items-end gap-1 print:hidden">
+      <button
+        type="button"
+        onClick={() => window.print()}
+        className="rounded-md border border-[var(--border-hairline)] text-[13.5px] font-medium px-3.5 py-2"
+        title="Na janela de impressão: destino 'Salvar como PDF' e desmarque 'Cabeçalhos e rodapés'"
+      >
+        Baixar PDF / Imprimir
+      </button>
+      <span className="text-[11px] text-[var(--text-muted)] max-w-[190px] text-right leading-tight">
+        Na janela: destino “Salvar como PDF” e desmarque “Cabeçalhos e rodapés”.
+      </span>
+    </div>
   );
 }

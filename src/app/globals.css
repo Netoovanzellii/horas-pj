@@ -162,11 +162,6 @@ body {
     border-bottom: 0 !important;
   }
 
-  .report-signatures {
-    margin-top: 26pt;
-    break-inside: avoid;
-  }
-
   .report-footer {
     margin-top: 18pt;
     padding-top: 6pt;
