@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getActiveContract, getPeriodSummary, getTimeEntriesForRequest } from "@/lib/queries";
 import { getPeriodForDate, formatPeriodLabel } from "@/lib/period";
-import { formatMinutesShort } from "@/lib/time";
+import { formatMinutesShort, formatDateTimeBR } from "@/lib/time";
 import { StatCard, Panel } from "@/components/ui/StatCard";
 import { StatusBadge } from "@/components/ui/Badge";
 import { ClosePeriodButton, PrintButton } from "@/components/forms/PeriodActions";
@@ -55,13 +55,7 @@ export default async function PeriodoDetailPage({ params }: { params: Promise<{ 
 
   const requestsSorted = [...summary.requests].sort((a, b) => a.openedAt.localeCompare(b.openedAt));
 
-  const generatedAt = new Date().toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const generatedAt = formatDateTimeBR();
 
   const entriesByRequest = new Map(
     await Promise.all(

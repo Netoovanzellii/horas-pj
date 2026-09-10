@@ -4,6 +4,22 @@
  * apresentação.
  */
 
+/**
+ * Data/hora "agora" formatada no fuso de Brasília (o servidor da Netlify roda
+ * em UTC, então sem `timeZone` o horário sai 3h adiantado).
+ * Ex.: "10/09/2026, 10:59".
+ */
+export function formatDateTimeBR(date: Date = new Date()): string {
+  return date.toLocaleString("pt-BR", {
+    timeZone: "America/Sao_Paulo",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function formatMinutes(totalMinutes: number): string {
   const sign = totalMinutes < 0 ? "-" : "";
   const abs = Math.abs(Math.round(totalMinutes));

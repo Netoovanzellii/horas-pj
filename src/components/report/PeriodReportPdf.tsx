@@ -144,8 +144,6 @@ export function PeriodReportPdf({ data, generatedAt }: { data: PeriodReportData;
   const { contract, period, summary, requests, groups, totalMinutes } = data;
   const b = summary.balance;
   const overage = b.overageMinutes > 0;
-  const balanceLabel = overage ? "Horas excedentes" : "Saldo disponível";
-  const balanceValue = formatMinutesShort(overage ? b.overageMinutes : b.availableMinutes);
 
   const monthlyValue = brl(contract.monthlyValueCents);
   const overtimeRate = brl(contract.overtimeHourValueCents);
@@ -199,19 +197,9 @@ export function PeriodReportPdf({ data, generatedAt }: { data: PeriodReportData;
             <Text style={s.kvValue}>{formatMinutesShort(b.usedMinutes)}</Text>
           </View>
           <View style={s.kvRow}>
-            <Text style={s.kvLabel}>{balanceLabel}</Text>
-            <Text style={[s.kvValueStrong, overage ? { color: "#c0392b" } : {}]}>{balanceValue}</Text>
             <Text style={s.kvLabel}>% da franquia utilizado</Text>
             <Text style={s.kvValue}>{b.percentUsed}%</Text>
           </View>
-          {monthlyValue || overtimeRate ? (
-            <View style={s.kvRow}>
-              <Text style={s.kvLabel}>Valor mensal</Text>
-              <Text style={s.kvValue}>{monthlyValue ?? "—"}</Text>
-              <Text style={s.kvLabel}>Hora excedente</Text>
-              <Text style={s.kvValue}>{overtimeRate ?? "—"}</Text>
-            </View>
-          ) : null}
           {overageCost ? (
             <View style={s.kvRow}>
               <Text style={s.kvLabel}>Estimativa de excedente</Text>

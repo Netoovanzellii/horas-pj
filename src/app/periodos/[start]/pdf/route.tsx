@@ -1,6 +1,7 @@
 import { renderToBuffer } from "@react-pdf/renderer";
 import { getPeriodReportData } from "@/lib/periodReport";
 import { PeriodReportPdf } from "@/components/report/PeriodReportPdf";
+import { formatDateTimeBR } from "@/lib/time";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -22,15 +23,9 @@ export async function GET(_req: Request, { params }: { params: Promise<{ start: 
   const data = await getPeriodReportData(start);
   if (!data) return new Response("Período não encontrado", { status: 404 });
 
-  const generatedAt = new Date().toLocaleString("pt-BR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
-  const buffer = await renderToBuffer(<PeriodReportPdf data={data} generatedAt={generatedAt} />);
+  const buffer = await renderToBuffer(
+    <PeriodReportPdf data={data} generatedAt={formatDateTimeBR()} />
+  );
   const filename = `fechamento-${start}-${slug(data.contract.client.name)}.pdf`;
 
   return new Response(new Uint8Array(buffer), {
